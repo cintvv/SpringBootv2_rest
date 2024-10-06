@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Список пользователей</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7f6;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    a {
+      background-color: #7e57c2;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    a:hover {
+      background-color: #5e35b1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+    }
+
+    th {
+      background-color: #7e57c2;
+      color: white;
+      text-align: center;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #e1e1f5;
+    }
+
+    .table-container {
+      margin: 0 auto;
+      width: 80%;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin-bottom: 20px;
+      width: 20%;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .user-info div {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .user-info div strong {
+      margin-right: 10px;
+    }
+
+  </style>
+</head>
+<body>
+<div class="table-container">
+  <h1 align="center">3.1.2 PP - Список пользователей</h1>
+  <div align="center" class="button-group" sec:authorize="isFullyAuthenticated()">
+    <a href="/logout">Logout</a>
+  </div>
+  <br />
+
+  <div sec:authorize="hasRole('ROLE_USER') and !hasRole('ROLE_ADMIN')" th:align="center" th:each="user : ${users}" class="user-info">
+    <div style="text-align: center;">
+      <strong>Ваши данные: </strong>
+    </div>
+    <div>
+      <img th:src="@{${user.avatar}}" alt="User Avatar" style="width: 260px; height: 260px; border-radius: 50%;">
+    </div>
+    <div>
+      <strong>ID:</strong>
+      <span th:utext="${user.username}">...</span>
+    </div>
+    <div>
+      <strong>EMAIL:</strong>
+      <span th:utext="${user.email}">...</span>
+    </div>
+    <div>
+      <strong>PHONE:</strong>
+      <span th:utext="${user.phone}">...</span>
+    </div>
+    <div>
+      <strong>ROLES:</strong>
+      <span th:utext="${user.role}">...</span>
+    </div>
+  </div>
+
+  <br />
+  <div th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}" align="center">
+    <a href="/admin/users/new">Добавить пользователя</a>
+    <a th:if="${currentPath == '/admin'}" href="/user">Показать только свой профиль (/user)</a>
+    <a th:if="${currentPath == '/user'}" href="/admin">Вернуться в админку (/admin)</a>
+    <br />
+  <br />
+  <div>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>AVATAR</th>
+        <th>EMAIL</th>
+        <th>PHONE</th>
+        <th>ROLES</th>
+        <th>Действие</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="user : ${users}">
+        <td th:utext="${user.username}">...</td>
+        <td><img th:src="@{${user.avatar}}" alt="User Avatar" style="width: 150px; height: 150px; border-radius: 50%;"></td>
+        <td th:utext="${user.email}">...</td>
+        <td th:utext="${user.phone}">...</td>
+        <td th:utext="${user.role}">...</td>
+        <td>
+            <a th:href="@{'/admin/users/edit/' + ${user.username}}">EDIT</a>
+            <a th:href="@{'/admin/users/remove/' + ${user.username}}">FORCE REMOVE</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</body>
+</html>
