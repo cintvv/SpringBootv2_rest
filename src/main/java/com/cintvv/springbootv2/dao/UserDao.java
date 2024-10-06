@@ -1,6 +1,6 @@
-package com.cintvv.springbootv1_1.dao;
+package com.cintvv.springbootv2.dao;
 
-import com.cintvv.springbootv1_1.model.User;
+import com.cintvv.springbootv2.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,6 +11,8 @@ public interface UserDao {
 
     void removeUserById(int id);
 
+    void removeUserByUsername(String username);
+
     void updateUser(User user);
 
     List<User> getAllUsers();
@@ -18,4 +20,6 @@ public interface UserDao {
     User getUserById(int id);
 
     User getUserByUsername(String username);
+
+    String getRolesByUsername(String username);
 }
