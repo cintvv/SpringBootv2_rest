@@ -67,7 +67,12 @@ public class MainController {
     public String saveUser(@ModelAttribute("user") User user) {
         User newUser = new User();
         String pwd = passwordEncoder.encode(user.getPassword());
+        newUser.setUsername(user.getUsername());
         newUser.setPassword(pwd);
+        newUser.setRoles(user.getRoles());
+        newUser.setEmail(user.getEmail());
+        newUser.setPhone(user.getPhone());
+        newUser.setAvatar(user.getAvatar());
         userService.saveUser(newUser);
         return "redirect:/admin";
     }
@@ -90,6 +95,7 @@ public class MainController {
         user1.setEmail(user.getEmail());
         user1.setAvatar(user.getAvatar());
         user1.setPhone(user.getPhone());
+        user1.setRoles(user.getRoles());
         if (user.getPassword().isEmpty()) {
             user1.setPassword(userService.getUserByUsername(username).getPassword());
         } else {
