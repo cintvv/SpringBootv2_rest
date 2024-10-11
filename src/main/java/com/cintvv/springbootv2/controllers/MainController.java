@@ -5,7 +5,6 @@ import com.cintvv.springbootv2.model.Role;
 import com.cintvv.springbootv2.model.User;
 import com.cintvv.springbootv2.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,21 +26,12 @@ public class MainController {
         this.userService = userService;
     }
 
-//    @RequestMapping("/")
-//    public void loginPageRedirect(HttpServletRequest request, HttpServletResponse response, Authentication authResult) throws IOException {
-//        String role =  authResult.getAuthorities().toString();
-//        if(role.contains("ROLE_ADMIN")){
-//            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/admin"));
-//        }
-//        else if(role.contains("ROLE_USER")) {
-//            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/user"));
-//        }
-//    }
-
     @GetMapping({ "/admin"})
     public String showAllUsersFromAdmin(Model model, HttpServletRequest request) {
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("currentPath", request.getRequestURI());
+        List<Role> roles = (List<Role>) roleRepository.findAll();
+        model.addAttribute("allRoles", roles);
         return "list";
     }
 
@@ -85,11 +75,13 @@ public class MainController {
         mav.addObject("user", user);
         List<Role> roles = (List<Role>) roleRepository.findAll();
         mav.addObject("allRoles", roles);
+        List<Role> userRoles = (List<Role>) user.getRoles();
+        mav.addObject("userRoles", userRoles);
         return mav;
     }
 
     @RequestMapping(value = "/admin/users/update/{username}", method = RequestMethod.POST)
-    public String updateUserAfterWriting(@PathVariable String username, @ModelAttribute("user") User user) {
+    public String updateUserAfterWriting(@PathVariable String username, @ModelAttribute("user") User user, Model model) {
         User user1 = userService.getUserByUsername(user.getUsername());
         user1.setId(userService.getUserByUsername(username).getId());
         user1.setEmail(user.getEmail());
@@ -101,6 +93,8 @@ public class MainController {
         } else {
             user1.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        List<Role> roles = (List<Role>) roleRepository.findAll();
+        model.addAttribute("allOfRoles", roles);
         userService.updateUser(user1);
         return "redirect:/admin";
     }

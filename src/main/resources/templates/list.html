@@ -1,168 +1,293 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
-  <title>Список пользователей</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Users</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f4f7f6;
-      padding: 20px;
+      background-color: #f8f9fa;
     }
-
-    h1 {
-      color: #333;
-      font-size: 28px;
-      margin-bottom: 20px;
+    .sidebar {
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #343a40;
+      margin-top: 64px;
+      width: 200px;
     }
-
-    a {
-      background-color: #7e57c2;
+    .sidebar a {
+      display: block;
       color: white;
       padding: 10px 15px;
       text-decoration: none;
-      border-radius: 4px;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 18px;
     }
-
-    a:hover {
-      background-color: #5e35b1;
+    .sidebar a:hover {
+      background-color: #007bff;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    .content {
+      margin-left: 220px;
+      padding-top: 60px;
     }
-
-    table, th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-    }
-
-    th {
-      background-color: #7e57c2;
-      color: white;
-      text-align: center;
-    }
-
-    td {
-      text-align: center;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #e1e1f5;
-    }
-
-    .table-container {
-      margin: 0 auto;
-      width: 80%;
-    }
-
-    .user-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #fff;
-      border: 1px solid #ddd;
+    .navbar {
+      background-color: #343a40;
       padding: 20px;
-      margin-bottom: 20px;
-      width: 20%;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
     }
-
-    .user-info div {
-      display: flex;
-      justify-content: space-between;
+    .btn-edit {
+      background-color: #17a2b8;
+      color: white;
+    }
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+    .active {
+      background-color: #007bff;
+      color: white;
+    }
+    .table-container {
+      margin: 0px auto;
       width: 100%;
-      margin-bottom: 10px;
     }
-
-    .user-info div strong {
-      margin-right: 10px;
+    .form-control {
+      color: #212529;
+      background-color: #ffffff;
     }
-
   </style>
 </head>
 <body>
-<div class="table-container">
-  <h1 align="center">3.1.2 PP - Список пользователей</h1>
-  <div align="center" class="button-group" sec:authorize="isFullyAuthenticated()">
-    <a href="/logout">Logout</a>
-  </div>
-  <br />
 
-  <div sec:authorize="hasRole('ROLE_USER') and !hasRole('ROLE_ADMIN')" th:align="center" th:each="user : ${users}" class="user-info">
-    <div style="text-align: center;">
-      <strong>Ваши данные: </strong>
-    </div>
-    <div>
-      <img th:src="@{${user.avatar}}" alt="User Avatar" style="width: 260px; height: 260px; border-radius: 50%;">
-    </div>
-    <div>
-      <strong>ID:</strong>
-      <span th:utext="${user.username}">...</span>
-    </div>
-    <div>
-      <strong>EMAIL:</strong>
-      <span th:utext="${user.email}">...</span>
-    </div>
-    <div>
-      <strong>PHONE:</strong>
-      <span th:utext="${user.phone}">...</span>
-    </div>
-    <div>
-      <strong>ROLES:</strong>
-      <span th:utext="${user.role}">...</span>
+<div class="content">
+  <div class="navbar">
+    <span><strong th:text="${#authentication.name}">USERNAME</strong> with roles:
+      <span th:each="roles : ${#authentication.getAuthorities()}" th:text="${roles} + ' '">WHERE ROLES?</span></span>
+    <a href="#" th:href="@{/logout}">Logout</a>
+    <div class="sidebar">
+      <a th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}" th:classappend="${currentPath == '/admin'} ? 'active'" th:href="@{/admin}">Admin</a>
+      <a th:classappend="${currentPath == '/user'} ? 'active'" th:href="@{/user}">User</a>
     </div>
   </div>
 
-  <br />
-  <div th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}" align="center">
-    <a href="/admin/users/new">Добавить пользователя</a>
-    <a th:if="${currentPath == '/admin'}" href="/user">Показать только свой профиль (/user)</a>
-    <a th:if="${currentPath == '/user'}" href="/admin">Вернуться в админку (/admin)</a>
-    <br />
-  <br />
-  <div>
-    <table>
-      <thead>
+  <h1 class="my-4">Admin panel</h1>
+
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#">Users table</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}" data-toggle="modal" data-target="#newUserModal">New User</a>
+    </li>
+  </ul>
+
+  <input class="form-control" type="text" placeholder="All Users" readonly>
+  <div class="table-container">
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
       <tr>
         <th>USERNAME</th>
         <th>AVATAR</th>
         <th>EMAIL</th>
         <th>PHONE</th>
         <th>ROLES</th>
-        <th>Действие</th>
+        <th th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}">Edit</th>
+        <th th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}">Delete</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="user : ${users}">
-        <td th:utext="${user.username}">...</td>
+        <td th:text="${user.username}">user</td>
         <td><img th:src="@{${user.avatar}}" alt="User Avatar" style="width: 150px; height: 150px; border-radius: 50%;"></td>
-        <td th:utext="${user.email}">...</td>
-        <td th:utext="${user.phone}">...</td>
-        <td th:utext="${user.role}">...</td>
-        <td>
-            <a th:href="@{'/admin/users/edit/' + ${user.username}}">EDIT</a>
-            <a th:href="@{'/admin/users/remove/' + ${user.username}}">FORCE REMOVE</a>
+        <td th:text="${user.email}">99</td>
+        <td th:text="${user.phone}">user@admin.com</td>
+        <td th:text="${user.role}">ROLE_USER</td>
+        <td th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}">
+          <button class="btn btn-edit btn-sm" data-toggle="modal" data-target="#editUserModal"
+                  th:data-username="${user.username}" th:data-email="${user.email}" th:data-phone="${user.phone}"
+                  th:data-avatar="${user.avatar}" th:data-roles="${user.roles}" th:data-allRoles="${allRoles}">Edit</button>
+        </td>
+        <td th:if="${#authorization.expression('(hasRole(''ROLE_ADMIN'') and hasRole(''ROLE_USER'')) or hasRole(''ROLE_ADMIN'')')}">
+          <button class="btn btn-delete btn-sm" data-toggle="modal" data-target="#deleteUserModal"
+                  th:data-username="${user.username}">Delete</button>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalLabel">Редактировать пользователя</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/admin/users/update/{username}(username=${username})}" method="post">
+          <div class="form-group">
+            <label for="editUsername">USERNAME:</label>
+            <input type="text" class="form-control" id="editUsername" name="username" required />
+          </div>
+          <div class="form-group">
+            <label for="editEmail">EMAIL:</label>
+            <input type="email" class="form-control" id="editEmail" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="editPhone">PHONE:</label>
+            <input type="tel" class="form-control" id="editPhone" name="phone" required />
+          </div>
+          <div class="form-group">
+            <label for="editPassword">PASSWORD:</label>
+            <input type="password" class="form-control" id="editPassword" name="password" />
+          </div>
+          <div class="form-group">
+            <label for="editAvatar">AVATAR URL:</label>
+            <input type="url" class="form-control" id="editAvatar" name="avatar" required />
+          </div>
+          <div class="form-group">
+            <label>Роли:</label>
+            <div>
+              <p th:each="role : ${allRoles}">
+                <label>
+                  <input type="checkbox" name="roles" th:value="${role.id}"/>
+                  <span th:text="${role.name}"></span>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="submit" value="Сохранить!" class="btn btn-primary" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteUserModalLabel">Подтверждение удаления</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Вы уверены, что хотите удалить пользователя <strong id="deleteUsername"></strong>?
+      </div>
+      <div class="modal-footer">
+        <form id="deleteUserForm" method="post">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <input type="submit" class="btn btn-danger" value="Удалить">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newUserModalLabel">Добавить нового пользователя</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/admin/users/save}" method="post">
+          <div class="form-group">
+            <label for="newUsername">USERNAME:</label>
+            <input type="text" class="form-control" id="newUsername" name="username" required title="Если не уникально, к нему будет добавлено +1"
+                   placeholder="Если не уникально, добавится +1" />
+          </div>
+          <div class="form-group">
+            <label for="newEmail">EMAIL:</label>
+            <input type="email" class="form-control" id="newEmail" name="email" required placeholder="mail@mail.com"/>
+          </div>
+          <div class="form-group">
+            <label for="newPhone">PHONE:</label>
+            <input type="tel" class="form-control" id="newPhone" name="phone" required pattern="^\+7 \d{3} \d{3} \d{2} \d{2}$"
+                   title="Формат: +7 999 999 99 99"
+                   placeholder="+7 999 999 99 99"/>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">PASSWORD:</label>
+            <input type="password" class="form-control" id="newPassword" name="password" required placeholder="*********"/>
+          </div>
+          <div class="form-group">
+            <label for="newAvatar">AVATAR URL:</label>
+            <input type="url" class="form-control" id="newAvatar" name="avatar" required pattern="https?://.*\.(jpg|jpeg|png|gif)$"
+                   title="Формат: только URL изображения (например, https://oxfraud.cc/image.jpg)"
+                   placeholder="https://oxfraud.cc/image.jpg"/>
+          </div>
+          <div class="form-group">
+            <label>Роли:</label>
+            <div>
+              <p th:each="role : ${allRoles}">
+                <label>
+                  <input type="checkbox" name="roles" th:value="${role.id}" />
+                  <span th:text="${role.name}"></span>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="submit" value="Сохранить!" class="btn btn-primary" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#editUserModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var username = button.data('username');
+      var email = button.data('email');
+      var phone = button.data('phone');
+      var avatar = button.data('avatar');
+      var roles = button.data('roles') ? button.data('roles').split(',') : [];
+
+
+      var modal = $(this);
+      modal.find('#editUsername').val(username);
+      modal.find('#editEmail').val(email);
+      modal.find('#editPhone').val(phone);
+      modal.find('#editAvatar').val(avatar);
+      modal.find('#editRoles').val(roles);
+
+      modal.find('form').attr('action', '/admin/users/update/' + username);
+    });
+
+    $('#deleteUserModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var username = button.data('username');
+
+      var modal = $(this);
+      modal.find('#deleteUsername').text(username);
+      $('#deleteUserForm').attr('action', '/admin/users/remove/' + username);
+    });
+  });
+</script>
+
 </body>
 </html>
